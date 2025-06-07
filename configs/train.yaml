@@ -1,0 +1,35 @@
+num_epochs: 5
+batch_size: 16
+random_seed: 42
+run_name: "initial_training_run"
+framework: "PyTorch Lightning"
+
+accelerator: "cuda"
+devices: 1
+deterministic_ops: true
+
+optimizer:
+  name: "Adam"
+  lr: 0.001
+
+scheduler:
+  name: "StepLR"
+  step_size: 10
+  gamma: 0.1
+
+num_workers: 2
+
+callbacks:
+  model_checkpoint:
+    save_top_k: 1
+    monitor: "val/total_loss"
+    mode: "min"
+    save_last: true
+  early_stopping:
+    monitor: "val/total_loss"
+    patience: 10
+    verbose: true
+    mode: "min"
+
+dummy_sequence_length: 50
+export_onnx_after_train: true 

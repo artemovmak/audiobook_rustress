@@ -1,0 +1,2 @@
+mlflow_tracking_uri: "file:./mlruns"
+mlflow_experiment_name: "SpeechStressAnalysis_Exp1" 

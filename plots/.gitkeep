@@ -1,0 +1,4 @@
+# This directory is intended for storing plots (e.g., images of loss curves, metric graphs)
+# generated during training or analysis. These can then be logged as artifacts by MLflow.
+ 
+.gitkeep 

@@ -1,0 +1,14 @@
+input_audio_file: "raw_data/audio.mp3"
+input_text_file: "raw_data/text.txt"
+output_dir: "processed_data"
+
+audio:
+  sample_rate: 16000
+
+text: pass
+
+sdhubert_features: pass
+
+label_generation: pass
+
+overwrite_output: true 

@@ -1,0 +1,23 @@
+defaults:
+  - _self_
+  - data_preprocessing
+  - model
+  - train
+  - logging
+
+project_name: speech_stress_analyzer
+version: 0.1.0
+
+data_root: data
+raw_data_dir: ${data_root}/raw
+processed_data_dir: processed_data
+model_output_dir: models
+checkpoint_dir: outputs/checkpoints
+
+dvc:
+  pull_data_on_train: false
+  pull_model_on_infer: false
+
+infer:
+  model_checkpoint_path: ${checkpoint_dir}/best_model.ckpt
+  device: cuda 
