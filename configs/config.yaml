@@ -15,8 +15,8 @@ model_output_dir: models
 checkpoint_dir: outputs/checkpoints
 
 dvc:
-  pull_data_on_train: false
-  pull_model_on_infer: false
+  pull_data_on_train: true
+  pull_model_on_infer: true
 
 infer:
   model_checkpoint_path: ${checkpoint_dir}/best_model.ckpt

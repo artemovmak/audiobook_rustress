@@ -75,39 +75,64 @@ dvc init
 
 ## Train
 
+### Data Management with DVC
+
+**This project uses DVC (Data Version Control) for data management. Data is automatically downloaded when needed.**
+
+#### Automatic Data Download
+
+Data is automatically downloaded during training and inference:
+- **Training**: Set `dvc.pull_data_on_train=true` in config (default)
+- **Inference**: Set `dvc.pull_model_on_infer=true` in config (default)
+
+#### Manual Data Download
+
+To download data manually:
+```bash
+poetry run python -m speech_stress_analyzer.commands download_data
+```
+
+Or using DVC directly:
+```bash
+poetry run dvc pull
+```
+
 ### Data Preparation
 
-**Before running preprocessing, you need to prepare your data:**
+**If setting up data from scratch:**
 
 1. **Create data directories:**
 ```bash
 mkdir -p raw_data
 ```
 
-2. **Add your audio file:**
+2. **Add your audio and text files:**
    - Place your Russian speech audio file as `raw_data/audio.mp3`
-   - Supported formats: MP3, WAV, FLAC (automatically converted to 16kHz WAV)
-   - Recommended: Clear speech with minimal background noise
-
-3. **Add corresponding transcript:**
-   - Create `raw_data/text.txt` with the Russian text corresponding to your audio
-   - Format: One line per sentence or phrase
-   - Use standard Russian text (Cyrillic characters)
-   - Example content:
+   - Create `raw_data/text.txt` with the corresponding Russian transcript
+   - Example transcript format:
    ```
    Привет, меня зовут Анна.
    Сегодня хорошая погода.
    Давайте поговорим о машинном обучении.
    ```
 
+3. **Add files to DVC:**
+```bash
+poetry run dvc add raw_data/audio.mp3 raw_data/text.txt
+git add raw_data/*.dvc .gitignore
+poetry run dvc push  # Upload to remote storage
+```
+
 4. **Verify data structure:**
 ```bash
 raw_data/
-├── audio.mp3    # Your speech audio file
-└── text.txt     # Corresponding Russian transcript
+├── audio.mp3.dvc    # DVC metadata file (tracked by Git)
+├── text.txt.dvc     # DVC metadata file (tracked by Git)
+├── audio.mp3        # Actual data (managed by DVC)
+└── text.txt         # Actual data (managed by DVC)
 ```
 
-**Note:** These data files are excluded from Git via `.gitignore` and should be managed with DVC for version control.
+**Note:** Only `.dvc` files are tracked by Git. Actual data files are managed by DVC and stored in remote storage.
 
 ### Preprocessing
 

@@ -118,8 +118,10 @@ docker-compose.yml
 # Data files - these should be managed by DVC
 # Add specific paths if your data isn't all in one `data/` dir
 data/
-raw_data/
-processed_data/
+raw_data/*
+!raw_data/*.dvc
+processed_data/*
+!processed_data/*.dvc
 
 # Models - these should be managed by DVC
 models/

@@ -1,51 +1,58 @@
 # speech_stress_analyzer/download_data.py
 
-from omegaconf import DictConfig
+import dvc.api
 import os
+from pathlib import Path
+from omegaconf import DictConfig
+import logging
 
-def fetch_data(config: DictConfig):
+logger = logging.getLogger(__name__)
+
+def download_data(cfg: DictConfig = None):
     """
-    Downloads data from open sources as specified in the configuration.
-    This function is typically used when DVC is configured with a local remote,
-    and initial data needs to be fetched from the web.
+    Download data from DVC remote storage.
+    
+    Args:
+        cfg: Hydra configuration (optional)
     """
-    print("Starting data download process...")
-    # Example structure for config:
-    # data:
-    #   download_urls: 
-    #     dataset1: "http://example.com/dataset1.zip"
-    #     dataset2: "http://example.com/dataset2.tar.gz"
-    #   raw_data_dir: "data/raw"
+    try:
+        logger.info("Starting data download from DVC remote...")
+        
+        project_root = Path.cwd()
+        raw_data_dir = project_root / "raw_data"
+        
+        raw_data_dir.mkdir(exist_ok=True)
+        
+        audio_file = raw_data_dir / "audio.mp3"
+        text_file = raw_data_dir / "text.txt"
+        
+        if not audio_file.exists() or not text_file.exists():
+            logger.info("Pulling data from DVC remote...")
+            os.system("poetry run dvc pull")
+            logger.info("Data successfully downloaded from DVC remote")
+        else:
+            logger.info("Data files already exist locally")
+            
+        if audio_file.exists() and text_file.exists():
+            logger.info(f"Audio file: {audio_file} ({audio_file.stat().st_size / 1024 / 1024:.2f} MB)")
+            logger.info(f"Text file: {text_file} ({text_file.stat().st_size} bytes)")
+        else:
+            raise FileNotFoundError("Failed to download required data files")
+            
+    except Exception as e:
+        logger.error(f"Error downloading data: {e}")
+        raise
 
-    raw_data_dir = config.data.raw_data_dir
-    os.makedirs(raw_data_dir, exist_ok=True)
-
-    if hasattr(config.data, "download_urls") and config.data.download_urls:
-        for name, url in config.data.download_urls.items():
-            print(f"Downloading {name} from {url}...")
-            # Add your download logic here (e.g., using requests, wget)
-            # Example: subprocess.run(["wget", "-P", raw_data_dir, url], check=True)
-            print(f"Placeholder: {name} downloaded to {raw_data_dir}")
-    else:
-        print("No download URLs specified in the configuration (config.data.download_urls).")
-
-    print("Data download script finished.")
-    print(f"Ensure downloaded data in '{raw_data_dir}' is added to DVC:")
-    print(f"  dvc add {raw_data_dir}")
-    print(f"  git add {raw_data_dir}.dvc .gitignore") # .gitignore might need update if not generic enough
-    print( "  dvc push")
+def download_sample_data_from_web():
+    """
+    Alternative function to download sample data from web sources
+    if DVC remote is not available.
+    """
+    logger.info("DVC remote not configured. Please set up your data manually:")
+    logger.info("1. Place audio file at raw_data/audio.mp3")
+    logger.info("2. Place transcript at raw_data/text.txt")
+    logger.info("3. Run 'poetry run dvc add raw_data/audio.mp3 raw_data/text.txt'")
+    logger.info("4. Run 'poetry run dvc push' to upload to remote")
 
 if __name__ == "__main__":
-    # This script is intended to be called from commands.py with hydra config
-    # For standalone testing, you might mock a config
-    print("This script is designed to be run via `python -m speech_stress_analyzer.commands download_data`")
-    # Example of how it might be called with a dummy config:
-    # from omegaconf import OmegaConf
-    # dummy_config = OmegaConf.create({
-    #     "data": {
-    #         "raw_data_dir": "data/raw_test",
-    #         "download_urls": {"test_file": "http://example.com/dummy.zip"}
-    #     }
-    # })
-    # fetch_data(dummy_config)
-    pass 
+    download_data() 

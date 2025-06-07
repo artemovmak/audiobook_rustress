@@ -17,6 +17,11 @@ cs = ConfigStore.instance()
 @hydra.main(config_path="../configs", config_name="config", version_base=None)
 def _preprocess_hydra_entrypoint(cfg: DictConfig) -> None:
     print("Starting preprocessing command (via _preprocess_hydra_entrypoint)...\n")
+    
+    if cfg.dvc.pull_data_on_train:
+        print("Downloading data via DVC...")
+        download_data_module.download_data(cfg)
+    
     preprocess_module.run_preprocessing(cfg)
     print("Preprocessing command (via _preprocess_hydra_entrypoint) finished.\n")
 
@@ -158,15 +163,15 @@ class Commands:
             print("Preprocessing command finished.")
 
     def download_data(self, *overrides: str) -> None:
-        """Download data from open sources, with optional Hydra overrides."""
+        """Download data from DVC remote storage, with optional Hydra overrides."""
         with hydra.initialize(config_path="../configs", version_base=None, job_name="download_data_job"):
             cfg = hydra.compose(config_name="config", overrides=list(overrides))
 
             print("Starting data download command...")
             print(f"Overrides: {list(overrides)}")
             print(f"Configuration:\\n{OmegaConf.to_yaml(cfg)}")
-            download_data_module.fetch_data(cfg)
-            print("Data download command finished. Remember to `dvc add` and `dvc push` if new data was downloaded.")
+            download_data_module.download_data(cfg)
+            print("Data download command finished.")
 
     def export_onnx(self, *overrides: str) -> None:
         """Export the trained model to ONNX format, with optional Hydra overrides."""
